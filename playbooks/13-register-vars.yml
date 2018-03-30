@@ -1,0 +1,14 @@
+- name: Register the vars
+  hosts: TEST
+  tasks:
+    - name: Run some shell command
+      shell: who |wc -l
+      register: out
+
+    - name: Print out variable
+      debug:
+        msg: "{{out}}"
+
+    - name: Print howmnany users are logged in
+      debug:
+        msg: "No of Users logged in == {{out.stdout}}"

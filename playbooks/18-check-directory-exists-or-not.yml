@@ -1,0 +1,11 @@
+- name: Demo on check a directory exits or not 
+  hosts: TEST 
+  become: yes 
+  tasks: 
+    - name: Check a directory 
+      stat: 
+        path: /root
+      register: out 
+
+    - debug:
+        msg: "{{out}}"

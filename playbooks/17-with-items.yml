@@ -1,0 +1,11 @@
+- name: Demo on with_items loop 
+  hosts: TEST 
+  become: yes
+  tasks:
+    - name: Install zip packege
+      package:
+        name: "{{item}}" 
+        state: installed
+      with_items:
+        - zip 
+        - bzip2 

@@ -1,0 +1,8 @@
+- name: demo on how to copy file to remote node
+  hosts: TEST
+  tasks:
+    - name: Copy the file
+      copy:
+        src: files/student.sql
+        dest: /tmp/student.sql
+        

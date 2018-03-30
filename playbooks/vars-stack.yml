@@ -1,0 +1,10 @@
+DBIP: localhost
+DBNAME: studentapp
+DBUSER: student
+DBPASS: student@1
+TOMCAT_URL: http://www-us.apache.org/dist/tomcat/tomcat-8/v8.5.27/bin/apache-tomcat-8.5.27.tar.gz
+TOMCAT_BASE_DIR: /root
+JDBC_URL: https://github.com/cit-latex/stack/raw/master/mysql-connector-java-5.1.40.jar
+JDBC_FILE: mysql-connector-java-5.1.40.jar
+WAR_URL: https://github.com/cit-latex/stack/raw/master/student.war
+CONN_URL: http://www-eu.apache.org/dist/tomcat/tomcat-connectors/jk/tomcat-connectors-1.2.42-src.tar.gz

@@ -1,0 +1,199 @@
+- name: Install and Configure DB
+  hosts: TEST
+  gather_facts: yes
+  tags:
+    - DB
+  become: yes
+  vars_files:
+    - vars-stack.yml
+  tasks:
+    - name: Install MariadDB Server 
+      package:
+        name: mariadb-server
+        state: latest
+
+    - name: Start MariaDB Service
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: "Create database -- {{DBNAME}}"
+      mysql_db:
+        name: "{{DBNAME}}"
+        state: present
+
+    - name: Copy the sql schema file to remote node
+      template:
+        src: files/student.sql.j2
+        dest: /tmp/student.sql
+      
+    - name: Load sql schema
+      mysql_db:
+        name: all
+        state: import
+        target: /tmp/student.sql
+
+    - name: Create db user
+      mysql_user:
+          name: "{{DBUSER}}"
+          password: "{{DBPASS}}"
+          priv: "{{DBNAME}}.*:ALL"
+          state: present
+    - name: Register DB Ip address 
+      command: echo {{ansible_all_ipv4_addresses}}
+      register: DBIP
+
+- name: Install and Configure Tomcat 
+  hosts: TEST
+  become: yes
+  gather_facts: no
+  tags:
+    - APP
+  vars_files:  
+    - vars-stack.yml
+  tasks:
+    - name: Install Java
+      package:
+        name: java
+        state: installed
+    
+    - name: Get Tar file from url
+      shell: echo {{TOMCAT_URL}} | awk -F / '{print $NF}' | sed -e 's/.tar.gz//'
+      register: out
+
+    - name: Define tomcat directory Fact
+      set_fact:
+        TOMCAT_LOCATION: "{{TOMCAT_BASE_DIR}}/{{out.stdout}}"
+
+    ### Commented because we can download and extract with next task
+    #- name: Download tomcat
+    #  get_url:
+    #    url: "{{TOMCAT_URL}}"
+    #    dest: "{{TOMCAT_TAR_FILE}}"
+
+    - name: Check tomcat directory exists or not 
+      stat:
+        path: "{{TOMCAT_LOCATION}}"
+      register: out 
+
+    - name: Download tomcat and extact
+      unarchive:
+        src: "{{TOMCAT_URL}}"
+        dest: "{{TOMCAT_BASE_DIR}}"
+        remote_src: yes
+      when: out.stat.exists == false 
+
+    - name: Find webapps contents 
+      find:
+        paths: "{{TOMCAT_LOCATION}}/webapps"
+        file_type: any 
+      register: out 
+
+    - name: Remove webapps contents 
+      file: 
+        path: "{{item.path}}"
+        state: absent
+      with_items: "{{out.files}}"
+      
+    - name: Download JDBC jar file 
+      get_url: 
+        url: "{{JDBC_URL}}"
+        dest: "{{TOMCAT_LOCATION}}/lib/{{JDBC_FILE}}"
+
+    - name: Download war file 
+      get_url: 
+        url: "{{WAR_URL}}"
+        dest: "{{TOMCAT_LOCATION}}/webapps/student.war"
+      
+    - name: Update DB Parameters in context.xml 
+      template:
+        src: files/context.xml.j2
+        dest: "{{TOMCAT_LOCATION}}/conf/context.xml"
+
+    - name: check tomcat running or not 
+      shell: ps -ef | grep tomcat | grep -v grep 
+      register: out 
+      ignore_errors: yes
+
+    - name: Stop tomcat 
+      shell: "nohup sh {{TOMCAT_LOCATION}}/bin/shutdown.sh"
+      when: out.rc == 0
+
+    - name: Start tomcat 
+      shell: "nohup sh {{TOMCAT_LOCATION}}/bin/startup.sh"
+      
+- name: Install and configure web 
+  hosts: TEST
+  become: yes
+  gather_facts: no
+  tags:
+    - WEB
+  vars_files:  
+    - vars-stack.yml
+  tasks:
+    - name: Install Web Server 
+      package: 
+        name: "{{item}}"
+        state: installed 
+      with_items:
+        - httpd
+        - httpd-devel
+        - gcc 
+
+    - name: Define CONN location 
+      shell: echo {{CONN_URL}} | awk -F / '{print $NF}' | sed -e 's/.tar.gz//'
+      register: out 
+
+    - set_fact:
+        CONN_LOC: "/opt/{{out.stdout}}"
+      
+    - stat:
+        path: "{{CONN_LOC}}"
+      register: out
+
+    - name: Download and Extract Tomcat Connector 
+      unarchive:
+        src: "{{CONN_URL}}"
+        dest: "/opt"
+        remote_src: yes 
+      when: out.stat.exists == false 
+
+    - name: check mod_jk.so file 
+      stat: 
+        path: /etc/httpd/modules/mod_jk.so
+      register: out 
+
+    - name: Compile tomcat connector 
+      shell: ./configure --with-apxs=/usr/bin/apxs && make && make install 
+      args:
+        chdir: "{{CONN_LOC}}/native"
+      when: out.stat.exists == false 
+
+    - name: Create workers.properties
+      blockinfile:
+        create: yes
+        path: /etc/httpd/conf.d/worker.properties
+        block: |
+          worker.list=tomcatA
+          worker.tomcatA.type=ajp13
+          worker.tomcatA.host=localhost
+          worker.tomcatA.port=8009
+
+    - name: Create modjk conf file
+      blockinfile:
+        create: yes
+        path: /etc/httpd/conf.d/mod_jk.conf
+        block: |
+          LoadModule jk_module modules/mod_jk.so
+          JkWorkersFile conf.d/worker.properties
+          JkMount /student tomcatA
+          JkMount /student/* tomcatA          
+
+    - name: Start web service 
+      service:
+        name: httpd
+        state: restarted 
+
+
+        

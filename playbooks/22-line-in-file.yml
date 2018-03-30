@@ -1,0 +1,7 @@
+- name: Demo on blockinfile
+  hosts: TEST 
+  tasks:
+    - lineinfile:
+        path: /tmp/abc
+        regexp: '^PasswordAuthentication'
+        line: 'PasswordAuthentication no'

@@ -1,0 +1,14 @@
+- name: Print some messsage
+  debug:
+    msg: "Hello from role"
+
+- debug:
+    msg: "{{URL}}"
+
+- copy:
+    src: sample
+    dest: /tmp/sample
+
+- template:
+    src: sample.j2
+    dest: /tmp/sample1

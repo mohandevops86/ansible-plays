@@ -1,0 +1,10 @@
+- name: Demo on varaibles
+  hosts: TEST
+  #vars:
+  #  URL: "http://play.google.com"
+  tasks:
+    - name: Print a variable
+      debug:
+        msg: "URL = {{URL}}"
+      #vars:
+      #  URL: "http://task.google.com"

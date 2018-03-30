@@ -1,0 +1,8 @@
+- hosts: TEST
+  tasks:
+    - set_fact:
+        URL: http://taskfact.google.copm
+
+    - debug:
+        msg: "URL = {{URL}}"
+        

@@ -1,0 +1,8 @@
+- name: Demo on roles
+  hosts: TEST
+  #gather_facts: no
+  vars:
+    URL: http://vars.google.com
+  roles:
+    - { role: demo, URL: "http://vars.google.com" }
+     

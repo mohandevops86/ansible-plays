@@ -1,0 +1,12 @@
+- name: Demo in how to create files and directories
+  hosts: TEST 
+  tasks:
+    - name: Create a file 
+      file:
+        path: /tmp/1.txt
+        state: touch 
+
+    - name: Create a dir 
+      file:
+        path: /tmp/demodir
+        state: directory 

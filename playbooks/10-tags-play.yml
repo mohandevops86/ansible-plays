@@ -1,0 +1,17 @@
+- name: demo of tags on plays
+  hosts: TEST
+  tags:
+    - install
+  tasks:
+    - debug: 
+        msg: "Hello -- install tag from play"
+
+- name: demo of tags on play
+  hosts: TEST
+  tags:
+    - config
+  tasks:
+    - debug: 
+        msg: "Hello -- config tag from play"
+
+  

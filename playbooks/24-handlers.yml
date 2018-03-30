@@ -1,0 +1,14 @@
+- hosts: TEST
+  become: yes
+  tasks:
+    - name: Install Web server
+      package:
+        name: httpd
+        state: installed
+      notify: ReStart web server
+
+  handlers:
+    - name: ReStart web server
+      service:
+        name: httpd
+        state: restarted

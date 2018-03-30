@@ -1,0 +1,13 @@
+- name: Demo in how to delete files and directories
+  hosts: TEST 
+  become: yes
+  tasks:
+    - name: Remove a file 
+      file:
+        path: /tmp/1.txt
+        state: absent 
+
+    - name: Remove a dir 
+      file:
+        path: /tmp/demodir
+        state: absent 

@@ -1,0 +1,2 @@
+dependencies:
+  - { role: newdemo, URL: "http://demo.google.com" }

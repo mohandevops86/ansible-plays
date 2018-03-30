@@ -1,0 +1,21 @@
+- name: Search and delete files 
+  hosts: TEST 
+  become: yes 
+  tasks:
+    - name: Search files 
+      find:
+        paths: /root/apache-tomcat-8.5.27/webapps
+        file_type: any 
+      register: out 
+
+    #- name: Print out 
+    #  debug:
+    #    msg: "{{item.path}}"
+    #  with_items: "{{out.files}}"
+
+    - name: Remove files & direc 
+      file:
+        path: "{{item.path}}"
+        state: absent 
+      with_items: "{{out.files}}"
+

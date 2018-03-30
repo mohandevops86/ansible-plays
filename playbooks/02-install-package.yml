@@ -1,0 +1,9 @@
+- name: Install some package 
+  hosts: TEST
+  become: true
+  tasks:
+    - name: Install a package
+      package:
+        name: bzip2
+        state: installed
+      

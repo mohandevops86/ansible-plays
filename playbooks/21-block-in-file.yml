@@ -1,0 +1,11 @@
+- name: Demo on blockinfile
+  hosts: TEST 
+  tasks:
+    - name: insert/update "Match User" configuration block in /etc/ssh/sshd_config
+      blockinfile:
+        create: yes
+        path: /tmp/abc
+        block: |
+          Match User ansible-agent
+          PasswordAuthentication no
+

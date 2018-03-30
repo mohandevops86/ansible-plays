@@ -1,0 +1,2 @@
+- debug:
+    msg: "Hello from newdemo role , URL = {{URL}}"

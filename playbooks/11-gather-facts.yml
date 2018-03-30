@@ -1,0 +1,6 @@
+- name: demo on gather facts
+  hosts: TEST
+  gather_facts: no
+  tasks:
+    - debug:
+        msg: "Hostname = {{ansible_hostname}}"

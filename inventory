@@ -1,0 +1,10 @@
+testapp
+testdb
+testweb
+
+[TEST]
+ansibletest1 #URL=http://host.google.com
+
+[TEST:vars]
+#URL=http://group.google.com
+#

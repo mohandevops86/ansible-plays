@@ -1,0 +1,9 @@
+- name: Copy the template
+  hosts: TEST
+  vars:
+    URL: http://templates.google.com
+  tasks:
+    - name: COpy a template
+      template:
+        src: files/sample.j2
+        dest: /tmp/sample.txt

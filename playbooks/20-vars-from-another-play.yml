@@ -1,0 +1,13 @@
+- name: Play1 
+  hosts: TEST 
+  vars:
+   # URL: http://play1.google.com
+  tasks:
+    - command: echo http://play1.google.com
+      register: out 
+
+- name: Play2
+  hosts: TEST 
+  tasks:
+    - debug:
+        msg: "{{out}}"
